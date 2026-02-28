@@ -14,7 +14,7 @@ const upload = multer({
   limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
 });
 
-export const generateRoute = Router();
+export const generateRoute: Router = Router();
 
 generateRoute.post("/", upload.single("audio"), async (req, res) => {
   const requestId = uuid();

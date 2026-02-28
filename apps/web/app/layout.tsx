@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import { Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
+const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  variable: "--font-roboto-mono",
+});
+
 export const metadata: Metadata = {
-  title: "gemhax — Audio to Art",
-  description: "Upload audio, get AI-generated artwork powered by Gemini + Imagen",
+  title: "Lemonade. — Song to Image",
+  description:
+    "Upload audio, get AI-generated artwork powered by Gemini",
 };
 
 export default function RootLayout({
@@ -13,7 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-950 text-gray-100 min-h-screen antialiased">
+      <body
+        className={`${robotoMono.variable} font-mono bg-black text-gray-100 min-h-screen antialiased`}
+      >
         {children}
       </body>
     </html>

@@ -1,7 +1,16 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GOOGLE_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey ?? "");
+const DEFAULT_IMAGE_MODEL = "gemini-2.5-flash-image";
+
+function getGenAI(): GoogleGenerativeAI {
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "GOOGLE_API_KEY is not set. Add it to the repository .env file before starting the API."
+    );
+  }
+  return new GoogleGenerativeAI(apiKey);
+}
 
 export interface ImageResult {
   base64: string;
@@ -9,12 +18,9 @@ export interface ImageResult {
 }
 
 export async function generateImage(prompt: string): Promise<ImageResult> {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp",
-    generationConfig: {
-      // @ts-expect-error — responseModalities is supported but not yet in types
-      responseModalities: ["image", "text"],
-    },
+  const modelName = process.env.GEMINI_IMAGE_MODEL ?? DEFAULT_IMAGE_MODEL;
+  const model = getGenAI().getGenerativeModel({
+    model: modelName,
   });
 
   const result = await model.generateContent(prompt);

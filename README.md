@@ -88,6 +88,8 @@ gemhax/
 | Variable | Required | Used By | Description |
 |----------|----------|---------|-------------|
 | `GOOGLE_API_KEY` | Yes | `apps/api` | Google AI Studio API key for Gemini + Imagen |
+| `GEMINI_ANALYSIS_MODEL` | No | `apps/api` | Audio analysis model (default: `gemini-2.5-flash`) |
+| `GEMINI_IMAGE_MODEL` | No | `apps/api` | Image generation model (default: `gemini-2.5-flash-image`) |
 
 ## API Documentation
 
@@ -164,6 +166,7 @@ Runs shared schema validation tests and API smoke tests (mocked, no API key need
 | Issue | Solution |
 |-------|----------|
 | `GOOGLE_API_KEY not set` | Copy `.env.example` to `.env` and add your key |
+| `404 model ... no longer available` | Update to a supported model (or use the defaults in `.env.example`) and restart `pnpm dev` |
 | Gemini returns empty response | Ensure your API key has Gemini access enabled |
 | Imagen returns no image | Image generation may require specific API access — check [Google AI docs](https://ai.google.dev/) |
 | `pnpm dev` fails | Run `pnpm install` first; ensure Node 18+ |
@@ -174,7 +177,7 @@ Runs shared schema validation tests and API smoke tests (mocked, no API key need
 
 - **Frontend:** Next.js 15 (App Router) + TypeScript + Tailwind CSS
 - **Backend:** Express + TypeScript
-- **AI:** Google Gemini 2.0 Flash (audio analysis) + Imagen (image generation)
+- **AI:** Google Gemini 2.5 Flash (audio analysis) + Gemini 2.5 Flash Image (image generation)
 - **Validation:** Zod
 - **Monorepo:** pnpm workspaces
 

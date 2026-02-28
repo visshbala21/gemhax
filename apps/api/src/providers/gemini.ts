@@ -1,19 +1,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GEMINI_SYSTEM_PROMPT, geminiUserPrompt } from "@gemhax/shared";
 
-const apiKey = process.env.GOOGLE_API_KEY;
-if (!apiKey) {
-  console.warn("[warn] GOOGLE_API_KEY not set — Gemini calls will fail");
-}
+const DEFAULT_ANALYSIS_MODEL = "gemini-2.5-flash";
 
-const genAI = new GoogleGenerativeAI(apiKey ?? "");
+function getGenAI(): GoogleGenerativeAI {
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "GOOGLE_API_KEY is not set. Add it to the repository .env file before starting the API."
+    );
+  }
+  return new GoogleGenerativeAI(apiKey);
+}
 
 export async function analyzeAudio(
   audioBuffer: Buffer,
   mimeType: string
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
+  const modelName = process.env.GEMINI_ANALYSIS_MODEL ?? DEFAULT_ANALYSIS_MODEL;
+  const model = getGenAI().getGenerativeModel({
+    model: modelName,
     systemInstruction: GEMINI_SYSTEM_PROMPT,
   });
 
