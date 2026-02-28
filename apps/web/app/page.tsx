@@ -251,7 +251,7 @@ export default function Home() {
 
       {/* Center — Generate button inside prism */}
       <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-        <div className="relative" style={{ transform: "translateY(12vh)" }}>
+        <div className="relative" style={{ transform: "translateY(calc(12vh - 10px))" }}>
             <button
               onClick={handleGenerate} disabled={!file || loading}
               className="group relative cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-transform duration-500 ease-out hover:scale-110 disabled:hover:scale-100 pointer-events-auto"
