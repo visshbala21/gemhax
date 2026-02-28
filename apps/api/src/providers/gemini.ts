@@ -1,5 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GEMINI_SYSTEM_PROMPT, geminiUserPrompt } from "@gemhax/shared";
+import {
+  GEMINI_SYSTEM_PROMPT,
+  geminiUserPrompt,
+  GEMINI_REPAIR_PROMPT,
+  parseGeminiResponse,
+  type GeminiAnalysis,
+} from "@gemhax/shared";
 
 const DEFAULT_ANALYSIS_MODEL = "gemini-2.5-flash";
 
@@ -16,8 +22,9 @@ function getGenAI(): GoogleGenerativeAI {
 export async function analyzeAudio(
   audioBuffer: Buffer,
   mimeType: string
-): Promise<string> {
-  const modelName = process.env.GEMINI_ANALYSIS_MODEL ?? DEFAULT_ANALYSIS_MODEL;
+): Promise<GeminiAnalysis> {
+  const modelName =
+    process.env.GEMINI_ANALYSIS_MODEL ?? DEFAULT_ANALYSIS_MODEL;
   const model = getGenAI().getGenerativeModel({
     model: modelName,
     systemInstruction: GEMINI_SYSTEM_PROMPT,
@@ -30,17 +37,32 @@ export async function analyzeAudio(
     },
   };
 
-  const result = await model.generateContent([
-    geminiUserPrompt(),
-    audioPart,
-  ]);
-
-  const response = result.response;
-  const text = response.text();
+  const result = await model.generateContent([geminiUserPrompt(), audioPart]);
+  const text = result.response.text();
 
   if (!text) {
     throw new Error("Gemini returned an empty response");
   }
 
-  return text;
+  // Try parsing; if invalid, retry once with repair prompt
+  try {
+    return parseGeminiResponse(text);
+  } catch (firstError) {
+    console.warn(
+      `[gemini] First parse failed, retrying with repair prompt: ${(firstError as Error).message}`
+    );
+
+    const retryResult = await model.generateContent([
+      GEMINI_REPAIR_PROMPT,
+      `Previous response that failed:\n${text}`,
+      audioPart,
+    ]);
+    const retryText = retryResult.response.text();
+
+    if (!retryText) {
+      throw new Error("Gemini repair retry returned an empty response");
+    }
+
+    return parseGeminiResponse(retryText);
+  }
 }
