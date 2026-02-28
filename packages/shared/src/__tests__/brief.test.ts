@@ -114,6 +114,28 @@ describe("composePrompt", () => {
     expect(prompt).toContain("indigo");
     expect(prompt).toContain("nostalgic");
   });
+
+  it("creates distinct prompts for literal vs abstract interpretation", () => {
+    const literal = composePrompt(validBrief, {
+      interpretationMode: "literal",
+      emotionalArc: validArc,
+    });
+    const abstract = composePrompt(validBrief, {
+      interpretationMode: "abstract",
+      emotionalArc: validArc,
+    });
+    expect(literal).not.toEqual(abstract);
+    expect(literal).toContain("Cinematic realistic scene");
+    expect(literal).toContain("clear subject");
+    expect(literal).toContain("highly legible composition");
+    expect(literal).toContain("Key entities");
+    expect(literal).toContain(validBrief.entities[0]);
+    expect(abstract).toContain("Symbolic non-literal interpretation");
+    expect(abstract).toContain("avoid depicting specific literal scenes");
+    expect(abstract).toContain("Express emotion through color, lighting, and composition");
+    expect(abstract).toContain("surreal or impressionistic rendering");
+    expect(abstract).toContain("Peak emotional tone");
+  });
 });
 
 describe("parseGeminiBrief", () => {

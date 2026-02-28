@@ -49,6 +49,7 @@ interface StoryboardFrame {
 interface Result {
   output_mode: string;
   director_mode: string;
+  interpretation_mode: InterpretationMode;
   brief: Brief;
   emotional_arc: ArcSegment[];
   explain: Explain;
@@ -64,6 +65,8 @@ type DirectorMode =
   | "anime_frame"
   | "game_concept_art"
   | "minimal_poster";
+
+type InterpretationMode = "literal" | "abstract";
 
 const DIRECTOR_LABELS: Record<DirectorMode, string> = {
   album_cover: "Album Cover",
@@ -150,29 +153,33 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
   const [directorMode, setDirectorMode] = useState<DirectorMode>("album_cover");
+  const [interpretationMode, setInterpretationMode] = useState<InterpretationMode>("literal");
   const [outputMode, setOutputMode] = useState<"single" | "storyboard">("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showExplain, setShowExplain] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [showArc, setShowArc] = useState(false);
   const [expandedImg, setExpandedImg] = useState<{ base64: string; mime: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleGenerate() {
+  async function handleGenerate(modeOverride?: InterpretationMode) {
     if (!file) return;
+    const mode = modeOverride ?? interpretationMode;
     setLoading(true);
     setError(null);
     setResult(null);
     setShowDetails(false);
     setShowExplain(false);
+    setShowArc(false);
 
     try {
       const formData = new FormData();
       formData.append("audio", file);
       formData.append("director_mode", directorMode);
       formData.append("output_mode", outputMode);
+      formData.append("interpretation_mode", mode);
       if (title) formData.append("title", title);
       if (artist) formData.append("artist", artist);
 
@@ -213,30 +220,56 @@ export default function Home() {
     link.click();
   }
 
-  const primaryImage = result?.single
-    ? { base64: result.single.image_base64, mime: result.single.image_mime, alt: result.brief?.summary }
-    : null;
 
   return (
-    <main className="h-screen flex flex-col px-10 py-8 select-none relative overflow-hidden">
+    <main className="h-screen flex flex-col px-10 pt-4 pb-2 select-none relative overflow-hidden">
       {/* Background prism */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <div className="relative w-[110vmin] h-[110vmin]" style={{ clipPath: "inset(0 15% 0 0)" }}>
+        <div className="relative w-[110vmin] h-[110vmin]" style={{ clipPath: "inset(0 24% 0 0)" }}>
           <img src="/prism.jpg" alt="" className="w-full h-full object-cover opacity-50" draggable={false} />
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,black_75%)]" />
       </div>
 
       {/* Header */}
-      <header className="flex items-baseline justify-between relative z-10">
+      <header className="flex items-baseline justify-between relative z-10 mb-2 mt-4">
         <h1 className="text-6xl font-bold text-[#c8ff00] drop-shadow-[0_0_20px_rgba(200,255,0,0.4)]">
           Lemonade.
         </h1>
-        <span className="text-gray-500 text-lg tracking-wider">-song to image-</span>
+        <div className="rounded-full border border-white/15 bg-black/35 backdrop-blur-md px-4 py-2 text-right">
+          <p className="text-[10px] leading-none tracking-[0.28em] uppercase text-[#c8ff00]/80">
+            Spectral Transmuter
+          </p>
+          <p className="text-xs leading-none tracking-[0.2em] uppercase text-white/40 mt-1">
+            audio -&gt; lightform
+          </p>
+        </div>
       </header>
 
+      {/* Center — Generate button inside prism */}
+      <div className="absolute left-1/2 top-[49%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20">
+        <button
+          onClick={handleGenerate} disabled={!file || loading}
+          className="group relative cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-transform duration-500 ease-out hover:scale-110 disabled:hover:scale-100 pointer-events-auto"
+          title="Click to generate"
+        >
+          <div className="relative px-5 py-2.5 rounded-md border border-white/40 group-hover:border-[#c8ff00]/80 bg-black/60 backdrop-blur-md flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            {loading ? (
+              <span className="flex items-center gap-3">
+                <span className="w-5 h-5 border-2 border-[#c8ff00]/80 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm uppercase tracking-[0.2em] text-white/70 font-semibold">Generating...</span>
+              </span>
+            ) : (
+              <span className="text-sm uppercase tracking-[0.2em] text-white/80 group-hover:text-[#c8ff00] font-semibold transition-colors duration-300">
+                Generate
+              </span>
+            )}
+          </div>
+        </button>
+      </div>
+
       {/* Main content */}
-      <div className="flex items-start justify-between gap-6 my-auto flex-1 relative z-10 max-w-[1400px] w-full mx-auto overflow-y-auto py-4">
+      <div className="flex items-center justify-between gap-6 mt-auto mb-auto flex-1 relative z-10 max-w-[1400px] w-full mx-auto overflow-y-auto py-2">
         {/* Left panel — Music Details */}
         <div className="w-96 shrink-0">
           <div className="relative backdrop-blur-xl bg-white/[0.07] border border-white/[0.12] rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-500 hover:bg-white/[0.1] hover:border-white/[0.18] hover:shadow-[0_8px_32px_rgba(200,255,0,0.06)]">
@@ -275,6 +308,28 @@ export default function Home() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            {/* Interpretation Toggle */}
+            <div className="mt-4">
+              <p className="text-white/40 font-medium text-sm uppercase tracking-[0.15em] mb-3">
+                Interpretation
+              </p>
+              <div className="flex rounded-xl overflow-hidden border border-white/[0.1]">
+                {(["literal", "abstract"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setInterpretationMode(m)}
+                    className={`flex-1 py-2.5 text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                      interpretationMode === m
+                        ? "bg-[#c8ff00]/20 text-[#c8ff00] font-semibold"
+                        : "bg-white/[0.04] text-white/40 hover:bg-white/[0.08]"
+                    }`}
+                  >
+                    {m === "literal" ? "Literal" : "Abstract"}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Output Mode Toggle */}
@@ -318,30 +373,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Center — Generate button */}
-        <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-          <div className="absolute" style={{ left: "50%", top: "46%", transform: "translate(-50%, -50%)" }}>
-            <button
-              onClick={handleGenerate} disabled={!file || loading}
-              className="group relative cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-transform duration-500 ease-out hover:scale-110 disabled:hover:scale-100 pointer-events-auto"
-              title="Click to generate"
-            >
-              <div className="relative px-8 py-4 rounded-lg border-2 border-white/40 group-hover:border-[#c8ff00]/80 bg-black/60 backdrop-blur-md flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                {loading ? (
-                  <span className="flex items-center gap-3">
-                    <span className="w-5 h-5 border-2 border-[#c8ff00]/80 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm uppercase tracking-[0.2em] text-white/70 font-semibold">Generating...</span>
-                  </span>
-                ) : (
-                  <span className="text-sm uppercase tracking-[0.2em] text-white/80 group-hover:text-[#c8ff00] font-semibold transition-colors duration-300">
-                    Generate
-                  </span>
-                )}
-              </div>
-            </button>
-          </div>
-        </div>
-
         {/* Right panel — Results */}
         <div className="w-[480px] shrink-0 space-y-4">
           {/* Image Panel */}
@@ -351,6 +382,11 @@ export default function Home() {
             <p className="text-[#c8ff00]/80 font-semibold text-sm uppercase tracking-[0.2em] mb-5">
               {result?.storyboard ? "Storyboard" : "Image"}
             </p>
+            {result?.interpretation_mode && (
+              <p className="text-white/40 text-xs uppercase tracking-wider mb-3">
+                Interpretation: {result.interpretation_mode}
+              </p>
+            )}
 
             {/* Single image */}
             {(!result || result.single) && (
@@ -412,6 +448,18 @@ export default function Home() {
                 <span>&darr;</span> Download
               </button>
               {result && (
+                <button
+                  onClick={() => {
+                    const nextMode = interpretationMode === "literal" ? "abstract" : "literal";
+                    setInterpretationMode(nextMode);
+                    handleGenerate(nextMode);
+                  }}
+                  className="text-sm text-white/50 hover:text-white/80 cursor-pointer transition-colors duration-300"
+                >
+                  Generate Other Mode
+                </button>
+              )}
+              {result && (
                 <>
                   <button onClick={() => setShowDetails(!showDetails)}
                     className="px-3 py-1 rounded-lg border border-white/15 text-white/40 text-xs flex items-center gap-1.5 hover:border-[#c8ff00]/30 hover:text-[#c8ff00]/60 cursor-pointer transition-all duration-300"
@@ -426,6 +474,12 @@ export default function Home() {
                     className="px-3 py-1 rounded-lg border border-white/15 text-white/40 text-xs flex items-center gap-1.5 hover:border-[#c8ff00]/30 hover:text-[#c8ff00]/60 cursor-pointer transition-all duration-300"
                   >
                     Explain
+                  </button>
+                  <button
+                    onClick={() => setShowArc(!showArc)}
+                    className="px-3 py-1 rounded-lg border border-white/15 text-white/40 text-xs flex items-center gap-1.5 hover:border-[#c8ff00]/30 hover:text-[#c8ff00]/60 cursor-pointer transition-all duration-300"
+                  >
+                    Emotional Arc
                   </button>
                 </>
               )}
@@ -451,7 +505,7 @@ export default function Home() {
           </div>
 
           {/* Emotional Arc */}
-          {result?.emotional_arc && (
+          {showArc && result?.emotional_arc && (
             <div className="relative backdrop-blur-xl bg-white/[0.07] border border-white/[0.12] rounded-3xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               <p className="text-[#c8ff00]/80 font-semibold text-sm uppercase tracking-[0.2em] mb-3">
                 Emotional Arc
@@ -546,7 +600,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="flex items-baseline justify-between pt-6 relative z-10">
+      <footer className="flex items-baseline justify-between pb-4 relative z-10">
         <span className="text-white/20 text-sm">an LVJ Technologies production.</span>
         <span className="text-sm">
           <span className="text-red-400">P</span><span className="text-orange-400">o</span>
