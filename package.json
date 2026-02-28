@@ -1,0 +1,14 @@
+{
+  "name": "gemhax",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Upload audio → Gemini analyzes it → Imagen generates artwork",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint"
+  },
+  "keywords": ["gemini", "imagen", "audio", "ai", "hackathon"],
+  "license": "MIT"
+}
