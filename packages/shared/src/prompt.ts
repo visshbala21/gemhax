@@ -11,17 +11,27 @@ export interface ComposeOptions {
   directorMode?: DirectorMode;
   /** Override segment for storyboard frames (uses segment palette/motifs/mood). */
   arcSegment?: ArcSegment;
+  /** Optional custom director instruction appended to the prompt. */
+  customDirector?: string;
 }
 
 export function composePrompt(
   brief: VisualBrief,
   options: ComposeOptions = {}
 ): string {
-  const { directorMode = "album_cover", arcSegment } = options;
+  const { directorMode = "album_cover", arcSegment, customDirector } = options;
   const parts: string[] = [];
+  const customMode =
+    typeof customDirector === "string" && customDirector.trim().length > 0
+      ? customDirector.trim()
+      : null;
 
   // Director mode style rules (always first — strongly influences the image)
-  parts.push(DIRECTOR_STYLE_RULES[directorMode]);
+  if (customMode) {
+    parts.push(`Custom director mode: ${customMode}. Use this as the primary style directive.`);
+  } else {
+    parts.push(DIRECTOR_STYLE_RULES[directorMode]);
+  }
 
   // Main scene + setting + time
   parts.push(`${brief.summary}.`);
@@ -66,7 +76,7 @@ export function composePrompt(
   }
 
   // Style (from brief, unless director mode already specifies medium)
-  if (directorMode === "album_cover") {
+  if (!customMode && directorMode === "album_cover") {
     parts.push(
       `Style: ${brief.style.medium}${brief.style.cinematic ? ", cinematic" : ""}.`
     );

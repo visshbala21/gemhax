@@ -87,6 +87,7 @@ describe("composePrompt", () => {
       "anime_frame",
       "game_concept_art",
       "minimal_poster",
+      "custom",
     ];
     for (const mode of modes) {
       const prompt = composePrompt(validBrief, { directorMode: mode });
@@ -113,6 +114,24 @@ describe("composePrompt", () => {
     expect(prompt).toContain("rain");
     expect(prompt).toContain("indigo");
     expect(prompt).toContain("nostalgic");
+  });
+
+  it("includes custom director note when provided", () => {
+    const prompt = composePrompt(validBrief, {
+      directorMode: "cinematic_still",
+      customDirector: "Neon noir, heavy fog, reflective puddles",
+    });
+    expect(prompt).toContain("Custom director mode:");
+    expect(prompt).toContain("Neon noir");
+  });
+
+  it("uses custom director mode as primary directive", () => {
+    const prompt = composePrompt(validBrief, {
+      directorMode: "custom",
+      customDirector: "Retro-futurist chrome sculptures in a desert",
+    });
+    expect(prompt).toContain("Custom director mode:");
+    expect(prompt).toContain("Retro-futurist chrome sculptures in a desert");
   });
 });
 

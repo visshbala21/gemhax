@@ -38,6 +38,12 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
     const outputMode: OutputMode = outputModeSchema.catch("single").parse(
       req.body?.output_mode
     );
+    const customDirectorRaw =
+      typeof req.body?.custom_director === "string" ? req.body.custom_director : "";
+    const customDirector =
+      directorMode === "custom" && customDirectorRaw.trim().length > 0
+        ? customDirectorRaw.trim().slice(0, 240)
+        : null;
 
     const { originalname, mimetype, size } = req.file;
     console.log(
@@ -71,6 +77,7 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
         const prompt = composePrompt(brief, {
           directorMode,
           arcSegment: segment,
+          customDirector: customDirector ?? undefined,
         });
         console.log(
           `[${requestId}] Storyboard ${frame} prompt (${prompt.length} chars)`
@@ -87,7 +94,10 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
       storyboardResult = await Promise.all(framePromises);
     } else {
       // Single image
-      const prompt = composePrompt(brief, { directorMode });
+      const prompt = composePrompt(brief, {
+        directorMode,
+        customDirector: customDirector ?? undefined,
+      });
       console.log(
         `[${requestId}] Prompt (${prompt.length} chars): ${prompt.slice(0, 100)}...`
       );

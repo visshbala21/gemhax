@@ -63,7 +63,8 @@ type DirectorMode =
   | "surreal_dream"
   | "anime_frame"
   | "game_concept_art"
-  | "minimal_poster";
+  | "minimal_poster"
+  | "custom";
 
 const DIRECTOR_LABELS: Record<DirectorMode, string> = {
   album_cover: "Album Cover",
@@ -72,6 +73,7 @@ const DIRECTOR_LABELS: Record<DirectorMode, string> = {
   anime_frame: "Anime Frame",
   game_concept_art: "Game Concept Art",
   minimal_poster: "Minimal Poster",
+  custom: "Custom",
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
@@ -150,6 +152,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
   const [directorMode, setDirectorMode] = useState<DirectorMode>("album_cover");
+  const [customDirector, setCustomDirector] = useState("");
   const [outputMode, setOutputMode] = useState<"single" | "storyboard">("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -174,6 +177,9 @@ export default function Home() {
       formData.append("audio", file);
       formData.append("director_mode", directorMode);
       formData.append("output_mode", outputMode);
+      if (directorMode === "custom" && customDirector.trim()) {
+        formData.append("custom_director", customDirector.trim());
+      }
       if (title) formData.append("title", title);
       if (artist) formData.append("artist", artist);
 
@@ -230,10 +236,10 @@ export default function Home() {
 
       {/* Header */}
       <header className="flex items-baseline justify-between relative z-10 mb-2 mt-4">
-        <h1 className="text-5xl font-bold text-[#c8ff00] drop-shadow-[0_0_20px_rgba(200,255,0,0.4)]">
+        <h1 className="text-5xl font-bold text-[#c8ff00] drop-shadow-[0_0_20px_rgba(200,255,0,0.4)] translate-x-[30px] translate-y-[30px]">
           Lemonade.
         </h1>
-        <div className="rounded-full border border-white/15 bg-black/35 backdrop-blur-md px-4 py-2 text-right">
+        <div className="rounded-full border border-white/15 bg-black/35 backdrop-blur-md px-4 py-2 text-right -translate-x-[20px] translate-y-[20px]">
           <p className="text-[10px] leading-none tracking-[0.28em] uppercase text-[#c8ff00]/80">
             Spectral Transmuter
           </p>
@@ -298,7 +304,11 @@ export default function Home() {
               </p>
               <select
                 value={directorMode}
-                onChange={(e) => setDirectorMode(e.target.value as DirectorMode)}
+                onChange={(e) => {
+                  const next = e.target.value as DirectorMode;
+                  setDirectorMode(next);
+                  if (next !== "custom") setCustomDirector("");
+                }}
                 className="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-5 py-3 text-base text-white outline-none focus:border-[#c8ff00]/40 transition-all duration-300 cursor-pointer appearance-none"
               >
                 {(Object.keys(DIRECTOR_LABELS) as DirectorMode[]).map((m) => (
@@ -308,6 +318,25 @@ export default function Home() {
                 ))}
               </select>
             </div>
+
+            {/* Custom Director */}
+            {directorMode === "custom" && (
+              <div className="mt-4">
+                <p className="text-white/40 font-medium text-sm uppercase tracking-[0.15em] mb-3">
+                  Custom Director
+                </p>
+                <textarea
+                  rows={3}
+                  placeholder="Describe the style you want (e.g., neon noir, floating shards, dramatic fog...)"
+                  value={customDirector}
+                  onChange={(e) => setCustomDirector(e.target.value)}
+                  className="w-full bg-white/[0.06] border border-white/[0.1] rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 outline-none focus:border-[#c8ff00]/40 focus:bg-white/[0.08] transition-all duration-300 resize-none"
+                />
+                <p className="text-white/25 text-[11px] mt-2 tracking-wide">
+                  Required for Custom mode. This becomes the primary style directive.
+                </p>
+              </div>
+            )}
 
             {/* Output Mode Toggle */}
             <div className="mt-4">
@@ -561,8 +590,8 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="flex items-baseline justify-between pb-4 relative z-10">
-        <span className="text-white/20 text-sm">an LVJ Technologies production.</span>
-        <span className="text-sm">
+        <span className="text-white/20 text-sm translate-x-[30px] -translate-y-[30px]">an LVJ Technologies production.</span>
+        <span className="text-sm -translate-x-[30px] -translate-y-[30px]">
           <span className="text-red-400">P</span><span className="text-orange-400">o</span>
           <span className="text-yellow-400">w</span><span className="text-green-400">e</span>
           <span className="text-blue-400">r</span><span className="text-indigo-400">e</span>

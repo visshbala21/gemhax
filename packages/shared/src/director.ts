@@ -7,6 +7,7 @@ export const directorModeSchema = z.enum([
   "anime_frame",
   "game_concept_art",
   "minimal_poster",
+  "custom",
 ]);
 
 export type DirectorMode = z.infer<typeof directorModeSchema>;
@@ -25,4 +26,6 @@ export const DIRECTOR_STYLE_RULES: Record<DirectorMode, string> = {
     "Video game concept art. Epic scale environment painting, atmospheric perspective, painterly digital brushwork, detailed foreground props, lore-rich world-building details. Unreal Engine aesthetic.",
   minimal_poster:
     "Minimalist poster design. Flat geometric shapes, limited 3-color palette, bold negative space, Swiss design grid, no gradients, clean vector-like edges. Typographic composition without actual text.",
+  custom:
+    "Custom director mode. Follow the user's custom instruction as the primary style directive.",
 };
