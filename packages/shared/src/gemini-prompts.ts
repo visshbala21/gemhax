@@ -7,6 +7,7 @@ RULES:
 - Focus on themes and mood rather than reproducing copyrighted lyrics verbatim.
 - Be creative and visually descriptive.
 - The emotional_arc MUST have 3–7 segments covering the full duration.
+- emotional_arc[].label MUST be EXACTLY one of: "intro", "build", "chorus", "bridge", "drop", "outro", "peak". No variations, no underscores, no combinations like "chorus_reprise" or "fade_out". Map variations to the closest allowed value (e.g., "chorus_reprise" → "chorus", "fade_out" → "outro", "verse_bridge" → "bridge", "peak_chorus" → "peak").
 - valence range is [-1, 1] (negative = dark/sad, positive = bright/happy).
 - arousal range is [0, 1] (0 = calm, 1 = intense).
 
@@ -36,7 +37,7 @@ REQUIRED JSON SCHEMA:
   },
   "emotional_arc": [
     {
-      "label": "intro|build|chorus|bridge|drop|outro|peak",
+      "label": "MUST be exactly one of: intro, build, chorus, bridge, drop, outro, peak (no variations, no underscores, no combinations)",
       "start_sec": 0,
       "end_sec": 15,
       "valence": -1.0,
@@ -62,5 +63,21 @@ export function geminiUserPrompt(): string {
 }
 
 export const GEMINI_REPAIR_PROMPT = `Your previous response was not valid JSON or failed schema validation.
-Please return ONLY valid JSON matching the exact schema from the system prompt.
-Fix any issues and return the corrected JSON. No markdown fences, no explanation.`;
+
+CRITICAL: The emotional_arc[].label field MUST be EXACTLY one of these 7 values (no variations):
+- "intro"
+- "build"
+- "chorus"
+- "bridge"
+- "drop"
+- "outro"
+- "peak"
+
+If you used variations like "chorus_reprise", "fade_out", "verse_bridge", "peak_chorus", or "reflection_bridge", map them to the closest allowed value:
+- "chorus_reprise" → "chorus"
+- "fade_out" → "outro"
+- "verse_bridge" → "bridge"
+- "peak_chorus" → "peak"
+- "reflection_bridge" → "bridge"
+
+Please return ONLY valid JSON matching the exact schema. Fix ALL enum values to match exactly. No markdown fences, no explanation.`;

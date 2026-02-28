@@ -218,8 +218,11 @@ export default function Home() {
   return (
     <main className="h-screen flex flex-col px-10 pt-4 pb-2 select-none relative overflow-hidden">
       {/* Background prism */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <div className="relative w-[110vmin] h-[110vmin]" style={{ clipPath: "inset(0 24% 0 0)" }}>
+      <div className="absolute inset-0 pointer-events-none z-0 flex items-start justify-center">
+        <div
+          className="relative w-[110vmin] h-[110vmin]"
+          style={{ clipPath: "inset(0 24% 0 0)", transform: "translateY(10vh)" }}
+        >
           <img src="/prism.jpg" alt="" className="w-full h-full object-cover opacity-50" draggable={false} />
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,black_75%)]" />
@@ -227,7 +230,7 @@ export default function Home() {
 
       {/* Header */}
       <header className="flex items-baseline justify-between relative z-10 mb-2 mt-4">
-        <h1 className="text-6xl font-bold text-[#c8ff00] drop-shadow-[0_0_20px_rgba(200,255,0,0.4)]">
+        <h1 className="text-5xl font-bold text-[#c8ff00] drop-shadow-[0_0_20px_rgba(200,255,0,0.4)]">
           Lemonade.
         </h1>
         <div className="rounded-full border border-white/15 bg-black/35 backdrop-blur-md px-4 py-2 text-right">
@@ -241,25 +244,27 @@ export default function Home() {
       </header>
 
       {/* Center — Generate button inside prism */}
-      <div className="absolute left-1/2 top-[49%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20">
-        <button
-          onClick={handleGenerate} disabled={!file || loading}
-          className="group relative cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-transform duration-500 ease-out hover:scale-110 disabled:hover:scale-100 pointer-events-auto"
-          title="Click to generate"
-        >
-          <div className="relative px-5 py-2.5 rounded-md border border-white/40 group-hover:border-[#c8ff00]/80 bg-black/60 backdrop-blur-md flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-            {loading ? (
-              <span className="flex items-center gap-3">
-                <span className="w-5 h-5 border-2 border-[#c8ff00]/80 border-t-transparent rounded-full animate-spin" />
-                <span className="text-sm uppercase tracking-[0.2em] text-white/70 font-semibold">Generating...</span>
-              </span>
-            ) : (
-              <span className="text-sm uppercase tracking-[0.2em] text-white/80 group-hover:text-[#c8ff00] font-semibold transition-colors duration-300">
-                Generate
-              </span>
-            )}
-          </div>
-        </button>
+      <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+        <div className="relative" style={{ transform: "translateY(12vh)" }}>
+            <button
+              onClick={handleGenerate} disabled={!file || loading}
+              className="group relative cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-transform duration-500 ease-out hover:scale-110 disabled:hover:scale-100 pointer-events-auto"
+              title="Click to generate"
+            >
+              <div className="relative px-5 py-2.5 rounded-md border border-white/40 group-hover:border-[#c8ff00]/80 bg-black/60 backdrop-blur-md flex items-center justify-center transition-all duration-500 group-hover:shadow-[0_0_40px_rgba(200,255,0,0.3)] shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                {loading ? (
+                  <span className="flex items-center gap-3">
+                    <span className="w-5 h-5 border-2 border-[#c8ff00]/80 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm uppercase tracking-[0.2em] text-white/70 font-semibold">Generating...</span>
+                  </span>
+                ) : (
+                  <span className="text-sm uppercase tracking-[0.2em] text-white/80 group-hover:text-[#c8ff00] font-semibold transition-colors duration-300">
+                    Generate
+                  </span>
+                )}
+              </div>
+            </button>
+        </div>
       </div>
 
       {/* Main content */}
