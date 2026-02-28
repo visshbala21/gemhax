@@ -48,7 +48,6 @@ vi.mock("../providers/imagen.js", () => ({
 
 import {
   composePrompt,
-  interpretationModeSchema,
   selectStoryboardSegments,
 } from "@gemhax/shared";
 
@@ -79,8 +78,4 @@ describe("generate pipeline", () => {
     expect(p2).not.toEqual(p3);
   });
 
-  it("defaults interpretation_mode to literal when missing", () => {
-    const mode = interpretationModeSchema.catch("literal").parse(undefined);
-    expect(mode).toBe("literal");
-  });
 });

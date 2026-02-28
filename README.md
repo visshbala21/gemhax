@@ -124,7 +124,6 @@ Upload an audio file and receive generated image(s) with analysis.
 | `audio` | file | Yes | Audio file (mp3, wav, m4a, up to 25 MB) |
 | `director_mode` | string | No | One of: `album_cover`, `cinematic_still`, `surreal_dream`, `anime_frame`, `game_concept_art`, `minimal_poster` (default: `album_cover`) |
 | `output_mode` | string | No | `single` or `storyboard` (default: `single`) |
-| `interpretation_mode` | string | No | `literal` or `abstract` (default: `literal`) |
 | `title` | string | No | Song title (metadata only) |
 | `artist` | string | No | Artist name (metadata only) |
 
@@ -134,7 +133,6 @@ Upload an audio file and receive generated image(s) with analysis.
 {
   "output_mode": "single",
   "director_mode": "cinematic_still",
-  "interpretation_mode": "literal",
   "brief": {
     "title": "...", "summary": "...", "themes": ["..."],
     "entities": ["..."],
@@ -185,13 +183,6 @@ Returns `{ "status": "ok" }`.
 | `anime_frame` | Ghibli-inspired cel shading, vibrant saturated palette, dynamic poses |
 | `game_concept_art` | Epic environment painting, atmospheric perspective, Unreal Engine aesthetic |
 | `minimal_poster` | Flat geometric shapes, 3-color palette, Swiss design grid, bold negative space |
-
-## Interpretation Modes
-
-- **Literal** — Narrative-grounded visual rendering that prioritizes concrete entities, setting, and clear subject matter.
-- **Abstract** — Emotion-grounded symbolic rendering that emphasizes mood, palette, and atmosphere over literal scenes.
-
-**Demo tip:** Generate Literal first, then switch to Abstract to demonstrate contrast.
 
 ## Safety & IP
 

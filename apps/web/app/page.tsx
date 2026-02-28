@@ -49,7 +49,6 @@ interface StoryboardFrame {
 interface Result {
   output_mode: string;
   director_mode: string;
-  interpretation_mode: InterpretationMode;
   brief: Brief;
   emotional_arc: ArcSegment[];
   explain: Explain;
@@ -65,8 +64,6 @@ type DirectorMode =
   | "anime_frame"
   | "game_concept_art"
   | "minimal_poster";
-
-type InterpretationMode = "literal" | "abstract";
 
 const DIRECTOR_LABELS: Record<DirectorMode, string> = {
   album_cover: "Album Cover",
@@ -153,7 +150,6 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
   const [directorMode, setDirectorMode] = useState<DirectorMode>("album_cover");
-  const [interpretationMode, setInterpretationMode] = useState<InterpretationMode>("literal");
   const [outputMode, setOutputMode] = useState<"single" | "storyboard">("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -164,9 +160,8 @@ export default function Home() {
   const [expandedImg, setExpandedImg] = useState<{ base64: string; mime: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleGenerate(modeOverride?: InterpretationMode) {
+  async function handleGenerate() {
     if (!file) return;
-    const mode = modeOverride ?? interpretationMode;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -179,7 +174,6 @@ export default function Home() {
       formData.append("audio", file);
       formData.append("director_mode", directorMode);
       formData.append("output_mode", outputMode);
-      formData.append("interpretation_mode", mode);
       if (title) formData.append("title", title);
       if (artist) formData.append("artist", artist);
 
@@ -310,28 +304,6 @@ export default function Home() {
               </select>
             </div>
 
-            {/* Interpretation Toggle */}
-            <div className="mt-4">
-              <p className="text-white/40 font-medium text-sm uppercase tracking-[0.15em] mb-3">
-                Interpretation
-              </p>
-              <div className="flex rounded-xl overflow-hidden border border-white/[0.1]">
-                {(["literal", "abstract"] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => setInterpretationMode(m)}
-                    className={`flex-1 py-2.5 text-sm uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                      interpretationMode === m
-                        ? "bg-[#c8ff00]/20 text-[#c8ff00] font-semibold"
-                        : "bg-white/[0.04] text-white/40 hover:bg-white/[0.08]"
-                    }`}
-                  >
-                    {m === "literal" ? "Literal" : "Abstract"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Output Mode Toggle */}
             <div className="mt-4">
               <p className="text-white/40 font-medium text-sm uppercase tracking-[0.15em] mb-3">
@@ -382,11 +354,6 @@ export default function Home() {
             <p className="text-[#c8ff00]/80 font-semibold text-sm uppercase tracking-[0.2em] mb-5">
               {result?.storyboard ? "Storyboard" : "Image"}
             </p>
-            {result?.interpretation_mode && (
-              <p className="text-white/40 text-xs uppercase tracking-wider mb-3">
-                Interpretation: {result.interpretation_mode}
-              </p>
-            )}
 
             {/* Single image */}
             {(!result || result.single) && (
@@ -447,18 +414,6 @@ export default function Home() {
               >
                 <span>&darr;</span> Download
               </button>
-              {result && (
-                <button
-                  onClick={() => {
-                    const nextMode = interpretationMode === "literal" ? "abstract" : "literal";
-                    setInterpretationMode(nextMode);
-                    handleGenerate(nextMode);
-                  }}
-                  className="text-sm text-white/50 hover:text-white/80 cursor-pointer transition-colors duration-300"
-                >
-                  Generate Other Mode
-                </button>
-              )}
               {result && (
                 <>
                   <button onClick={() => setShowDetails(!showDetails)}

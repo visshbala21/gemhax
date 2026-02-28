@@ -5,7 +5,6 @@ export { GEMINI_SYSTEM_PROMPT, geminiUserPrompt, GEMINI_REPAIR_PROMPT } from "./
 export { directorModeSchema, DIRECTOR_STYLE_RULES, type DirectorMode } from "./director.js";
 export { arcSegmentSchema, emotionalArcSchema, type ArcSegment, type EmotionalArc } from "./emotional-arc.js";
 export { explainSchema, type Explain, type MappingNote } from "./explain.js";
-export { interpretationModeSchema, type InterpretationMode } from "./interpretation.js";
 export {
   outputModeSchema,
   storyboardFrameSchema,

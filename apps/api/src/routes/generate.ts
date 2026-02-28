@@ -4,11 +4,9 @@ import { v4 as uuid } from "uuid";
 import {
   composePrompt,
   directorModeSchema,
-  interpretationModeSchema,
   outputModeSchema,
   selectStoryboardSegments,
   type DirectorMode,
-  type InterpretationMode,
   type OutputMode,
   type GenerateResponse,
   type StoryboardFrame,
@@ -40,13 +38,10 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
     const outputMode: OutputMode = outputModeSchema.catch("single").parse(
       req.body?.output_mode
     );
-    const interpretationMode: InterpretationMode = interpretationModeSchema
-      .catch("literal")
-      .parse(req.body?.interpretation_mode);
 
     const { originalname, mimetype, size } = req.file;
     console.log(
-      `[${requestId}] file=${originalname} (${mimetype}, ${(size / 1024).toFixed(1)} KB) director=${directorMode} output=${outputMode} interpretation=${interpretationMode}`
+      `[${requestId}] file=${originalname} (${mimetype}, ${(size / 1024).toFixed(1)} KB) director=${directorMode} output=${outputMode}`
     );
 
     // Step 1: Gemini audio analysis (returns brief + emotional_arc + explain)
@@ -75,9 +70,7 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
       const framePromises = frameEntries.map(async ({ frame, segment }) => {
         const prompt = composePrompt(brief, {
           directorMode,
-          interpretationMode,
           arcSegment: segment,
-          emotionalArc: emotional_arc,
         });
         console.log(
           `[${requestId}] Storyboard ${frame} prompt (${prompt.length} chars)`
@@ -94,11 +87,7 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
       storyboardResult = await Promise.all(framePromises);
     } else {
       // Single image
-      const prompt = composePrompt(brief, {
-        directorMode,
-        interpretationMode,
-        emotionalArc: emotional_arc,
-      });
+      const prompt = composePrompt(brief, { directorMode });
       console.log(
         `[${requestId}] Prompt (${prompt.length} chars): ${prompt.slice(0, 100)}...`
       );
@@ -119,7 +108,6 @@ generateRoute.post("/", upload.single("audio"), async (req, res) => {
     const response: GenerateResponse = {
       output_mode: outputMode,
       director_mode: directorMode,
-      interpretation_mode: interpretationMode,
       brief,
       emotional_arc,
       explain,
